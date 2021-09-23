@@ -20,10 +20,14 @@ const fetchAccountBalances = async (account, tokensList, web3, contractABI) => {
     return newBalances;
   }
   for (let token of tokensList) {
-    const contract = new web3.eth.Contract(contractABI, token.address);
-    const balance = await contract.methods.balanceOf(account).call();
-    const formatedBalance = web3.utils.fromWei(balance);
-    newBalances.push(formatedBalance);
+    try {
+      const contract = new web3.eth.Contract(contractABI, token.address);
+      const balance = await contract.methods.balanceOf(account).call();
+      const formatedBalance = web3.utils.fromWei(balance);
+      newBalances.push(formatedBalance);
+    } catch (error) {
+      newBalances.push("Not Found");
+    }
   }
   return newBalances;
 };
