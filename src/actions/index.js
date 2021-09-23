@@ -4,6 +4,7 @@ import {
   ADD_TOKEN,
   REMOVE_TOKEN,
   SET_ETH_BALANCE,
+  SET_WEB3_PROVIDER,
 } from "./types";
 
 export const changeAccount = (account) => {
@@ -43,7 +44,6 @@ export const setBalances = (account, tokensList, web3, contractABI) => {
 };
 
 export const addToken = (tokenAddress, tokenName = "") => {
-  console.log("ADD TOKEN");
   return {
     type: ADD_TOKEN,
     payload: { name: tokenName, address: tokenAddress },
@@ -73,5 +73,12 @@ export const setEthBalance = (account, web3) => {
       type: SET_ETH_BALANCE,
       payload: newBalance,
     });
+  };
+};
+
+export const setWeb3Provider = (providerURL) => {
+  return {
+    type: SET_WEB3_PROVIDER,
+    payload: providerURL,
   };
 };

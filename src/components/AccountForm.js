@@ -1,10 +1,16 @@
 import React from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { Form as FinalForm, Field } from "react-final-form";
 import { connect } from "react-redux";
 import Web3 from "web3";
-import { changeAccount, setEthBalance, setBalances } from "../actions";
+import {
+  changeAccount,
+  setEthBalance,
+  setBalances,
+  setWeb3Provider,
+} from "../actions";
 import ERC20_ABI from "../helpers/ERC20_ABI";
+import INFURA_NODES from "../helpers/INFURA_NODES";
 
 const web3 = new Web3();
 
@@ -20,6 +26,8 @@ const validateAccount = (account) => {
 };
 
 class AccountForm extends React.Component {
+  state = { selectedNetwork: null };
+
   renderError = (meta) => {
     if (meta.touched && meta.error) {
       return <Form.Text className="text-danger">{meta.error}</Form.Text>;
@@ -41,8 +49,7 @@ class AccountForm extends React.Component {
     );
   };
 
-  onSubmit = (formValues) => {
-    console.log("AAAAAAAAAAA");
+  onSubmit = async (formValues) => {
     this.props.changeAccount(formValues.account);
     this.props.setEthBalance(formValues.account, this.props.web3);
     this.props.setBalances(
@@ -50,6 +57,31 @@ class AccountForm extends React.Component {
       this.props.tokensList,
       this.props.web3,
       ERC20_ABI
+    );
+  };
+
+  handleSelect = async (selectedNetwork) => {
+    await this.setState({ selectedNetwork });
+    this.props.setWeb3Provider(INFURA_NODES[this.state.selectedNetwork]);
+  };
+
+  renderNetworkSelectorDropdown = () => {
+    return (
+      <DropdownButton
+        className="mt-3"
+        title={
+          this.state.selectedNetwork ? this.state.selectedNetwork : "Network"
+        }
+        onSelect={this.handleSelect}
+        variant="secondary"
+      >
+        <Dropdown.Item eventKey="Mainnet">Mainnet</Dropdown.Item>
+        <Dropdown.Item eventKey="Ropsten">Ropsten</Dropdown.Item>
+        <Dropdown.Item eventKey="Kovan">Kovan</Dropdown.Item>
+        <Dropdown.Item eventKey="Rinkeby">Rinkeby</Dropdown.Item>
+        <Dropdown.Item eventKey="Goerli">Goerli</Dropdown.Item>
+        <Dropdown.Item eventKey="LocalHost8545">Localhost 8545</Dropdown.Item>
+      </DropdownButton>
     );
   };
 
@@ -64,6 +96,8 @@ class AccountForm extends React.Component {
               component={this.renderInput}
               validate={validateAccount}
             />
+
+            {this.renderNetworkSelectorDropdown()}
             <Button className="mt-3" type="submit">
               Set Account
             </Button>
@@ -80,4 +114,5 @@ export default connect(mapStateToProps, {
   changeAccount,
   setEthBalance,
   setBalances,
+  setWeb3Provider,
 })(AccountForm);
