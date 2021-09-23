@@ -6,7 +6,7 @@ import SendTabs from "./SendTabs";
 class SendCard extends React.Component {
   render() {
     return (
-      <Card>
+      <Card className="mb-5">
         <Card.Body>
           <Card.Title>Send</Card.Title>
           <SendTabs />

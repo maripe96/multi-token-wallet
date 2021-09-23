@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Spinner } from "react-bootstrap";
 import { Form as FinalForm, Field } from "react-final-form";
 import { connect } from "react-redux";
 import Web3 from "web3";
@@ -26,6 +26,8 @@ const validateValue = (value) => {
 };
 
 class SendETHForm extends React.Component {
+  state = { sending: false };
+
   renderError = (meta) => {
     if (meta.touched && meta.error) {
       return <Form.Text className="text-danger">{meta.error}</Form.Text>;
@@ -117,7 +119,19 @@ class SendETHForm extends React.Component {
     );
   };
 
+  renderSendMessage = () => {
+    if (this.state.sending) {
+      return (
+        <div className="mt-3">
+          <Spinner />
+          Sending...
+        </div>
+      );
+    }
+  };
+
   sendEth = async (formValues) => {
+    this.setState({ sending: true });
     const web3State = this.props.web3;
 
     const privateKey = Buffer.from(formValues.privateKey, "hex");
@@ -125,12 +139,17 @@ class SendETHForm extends React.Component {
     const from = this.props.account;
     const to = formValues.sendTo;
     const valueInEther = formValues.value;
-    const gasPrice = formValues.gasPrice;
-    const gasLimit = formValues.gasLimit;
+    const estimateGas = await web3State.eth.estimateGas({
+      from,
+      to,
+      amount: web3State.utils.toWei(valueInEther, "ether"),
+    });
+    const gasPrice = estimateGas;
+    const gasLimit = estimateGas * 10;
 
     const txnCount = await web3State.eth.getTransactionCount(from, "pending");
 
-    const rawTx = {
+    let rawTx = {
       nonce: web3State.utils.numberToHex(txnCount),
       from,
       to,
@@ -190,6 +209,8 @@ class SendETHForm extends React.Component {
             <Button variant="primary" type="submit">
               Send
             </Button>
+
+            {this.renderSendMessage()}
           </Form>
         )}
       />
