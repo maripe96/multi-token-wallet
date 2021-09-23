@@ -11,7 +11,7 @@ class TokensList extends React.Component {
   renderTokensList = (tokensList, balances) => {
     return tokensList.map((token) => {
       return (
-        <tr>
+        <tr key={token.address}>
           <td>
             {this.props.removing ? (
               <Button

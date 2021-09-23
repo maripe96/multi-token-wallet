@@ -9,15 +9,6 @@ const web3 = new Web3();
 
 // Input validation functions
 
-const validateTokenAddress = (address) => {
-  let error = undefined;
-  if (!web3.utils.isAddress(address)) {
-    error = "Invalid contract address";
-  }
-
-  return error;
-};
-
 const validateTokenName = (name) => {
   let error = undefined;
   if (!name) {
@@ -27,6 +18,18 @@ const validateTokenName = (name) => {
 };
 
 class AddTokenForm extends React.Component {
+  validateTokenAddress = (address) => {
+    let error = undefined;
+    if (!web3.utils.isAddress(address)) {
+      error = "Invalid contract address";
+    } else if (
+      this.props.tokensList.find((token) => token.address === address)
+    ) {
+      error = "Token alread in list";
+    }
+    return error;
+  };
+
   renderError = (meta) => {
     if (meta.touched && meta.error) {
       return <Form.Text className="text-danger">{meta.error}</Form.Text>;
@@ -66,7 +69,7 @@ class AddTokenForm extends React.Component {
             <Field
               name="address"
               component={this.renderAddressInput}
-              validate={validateTokenAddress}
+              validate={this.validateTokenAddress}
             />
             <Field
               name="name"
@@ -83,4 +86,6 @@ class AddTokenForm extends React.Component {
   }
 }
 
-export default connect(null, { addToken })(AddTokenForm);
+const mapStateToProps = (state) => state;
+
+export default connect(mapStateToProps, { addToken })(AddTokenForm);
