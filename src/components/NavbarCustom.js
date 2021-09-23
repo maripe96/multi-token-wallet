@@ -8,7 +8,7 @@ class NavbarCustom extends React.Component {
       <Navbar bg="dark" variant="dark" className="justify-content-center">
         <Container>
           <Col xs={4}>
-            <Navbar.Brand>Simple Token Wallet</Navbar.Brand>
+            <Navbar.Brand>Multi Token Wallet</Navbar.Brand>
           </Col>
           <Col xs={4}>
             <Navbar.Collapse className="justify-content-center">
