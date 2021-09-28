@@ -5,6 +5,7 @@ import {
   REMOVE_TOKEN,
   SET_ETH_BALANCE,
   SET_WEB3_PROVIDER,
+  CHANGE_NETWORK,
 } from "./types";
 
 export const changeAccount = (account) => {
@@ -84,5 +85,12 @@ export const setWeb3Provider = (providerURL) => {
   return {
     type: SET_WEB3_PROVIDER,
     payload: providerURL,
+  };
+};
+
+export const changeNetwork = (network) => {
+  return {
+    type: CHANGE_NETWORK,
+    payload: network,
   };
 };

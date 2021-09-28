@@ -8,6 +8,7 @@ import {
   setEthBalance,
   setBalances,
   setWeb3Provider,
+  changeNetwork,
 } from "../actions";
 import ERC20_ABI from "../helpers/ERC20_ABI";
 import INFURA_NODES from "../helpers/INFURA_NODES";
@@ -63,6 +64,7 @@ class AccountForm extends React.Component {
   handleSelect = async (selectedNetwork) => {
     await this.setState({ selectedNetwork });
     this.props.setWeb3Provider(INFURA_NODES[this.state.selectedNetwork]);
+    this.props.changeNetwork(this.state.selectedNetwork);
   };
 
   renderNetworkSelectorDropdown = () => {
@@ -80,7 +82,7 @@ class AccountForm extends React.Component {
         <Dropdown.Item eventKey="Kovan">Kovan</Dropdown.Item>
         <Dropdown.Item eventKey="Rinkeby">Rinkeby</Dropdown.Item>
         <Dropdown.Item eventKey="Goerli">Goerli</Dropdown.Item>
-        <Dropdown.Item eventKey="LocalHost8545">Localhost 8545</Dropdown.Item>
+        <Dropdown.Item eventKey="LocalHost8545">Localhost8545</Dropdown.Item>
       </DropdownButton>
     );
   };
@@ -115,4 +117,5 @@ export default connect(mapStateToProps, {
   setEthBalance,
   setBalances,
   setWeb3Provider,
+  changeNetwork,
 })(AccountForm);

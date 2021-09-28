@@ -18,7 +18,7 @@ const validateAddress = (account) => {
 const validateValue = (value) => {
   let error = undefined;
   if (!value) {
-    error = "Please input a value";
+    error = undefined;
   } else if (isNaN(value)) {
     error = "Invalid value";
   }
@@ -26,7 +26,11 @@ const validateValue = (value) => {
 };
 
 class SendETHForm extends React.Component {
-  state = { sending: false };
+  state = {
+    sending: false,
+    sendError: null,
+    finishedTransaction: null,
+  };
 
   renderError = (meta) => {
     if (meta.touched && meta.error) {
@@ -77,12 +81,12 @@ class SendETHForm extends React.Component {
   renderGasPriceInput = (formProps) => {
     return (
       <Form.Group className="mb-3">
-        <Form.Label>Gas</Form.Label>
+        <Form.Label>Gas Price [Gwei]</Form.Label>
         <Form.Control
           type="text"
           autoComplete="off"
           {...formProps.input}
-          placeholder="Gas"
+          placeholder="Gas Price [Gwei]"
         />
         <div>{this.renderError(formProps.meta)}</div>
       </Form.Group>
@@ -127,51 +131,83 @@ class SendETHForm extends React.Component {
           Sending...
         </div>
       );
+    } else if (this.state.sendError) {
+      return <div className="mt-3">Error: {this.state.sendError.message}</div>;
+    } else if (this.state.finishedTransaction) {
+      return (
+        <div>
+          <div className="mt-3">
+            Transaction Hash: {this.state.finishedTransaction.transactionHash}
+          </div>
+          <div>Gas Used: {this.state.finishedTransaction.gasUsed}</div>
+        </div>
+      );
     }
   };
 
   sendEth = async (formValues) => {
-    this.setState({ sending: true });
-    const web3State = this.props.web3;
-
-    const privateKey = Buffer.from(formValues.privateKey, "hex");
-
-    const from = this.props.account;
-    const to = formValues.sendTo;
-    const valueInEther = formValues.value;
-    const estimateGas = await web3State.eth.estimateGas({
-      from,
-      to,
-      amount: web3State.utils.toWei(valueInEther, "ether"),
+    this.setState({
+      sending: true,
+      sendError: null,
+      finishedTransaction: null,
     });
-    const gasPrice = estimateGas;
-    const gasLimit = estimateGas * 10;
+    try {
+      const web3State = this.props.web3;
 
-    const txnCount = await web3State.eth.getTransactionCount(from, "pending");
+      const privateKey = Buffer.from(formValues.privateKey, "hex");
 
-    let rawTx = {
-      nonce: web3State.utils.numberToHex(txnCount),
-      from,
-      to,
-      value: web3State.utils.numberToHex(
-        web3State.utils.toWei(valueInEther, "ether")
-      ),
-      gasLimit: web3State.utils.numberToHex(gasLimit),
-      gasPrice: web3State.utils.numberToHex(gasPrice),
-    };
+      const from = this.props.account;
+      const to = formValues.sendTo;
+      const valueInEther = formValues.value;
+      const estimateGas = await web3State.eth.estimateGas({
+        from,
+        to,
+        amount: web3State.utils.toWei(valueInEther, "ether"),
+      });
+      const estimateGasPrice = await web3State.eth.getGasPrice();
+      console.log("ESTIMATEGAS", estimateGas);
+      console.log("ESTIMATEGASPRICE", estimateGasPrice);
 
-    const tx = new EthereumTx(rawTx, { chain: "ropsten" });
-    console.log(tx);
-    tx.sign(privateKey);
+      let gasPrice = formValues.gasPrice
+        ? web3State.utils.toWei(formValues.gasPrice, "gwei")
+        : estimateGasPrice;
+      let gasLimit = formValues.gasLimit ? formValues.gasLimit : estimateGas;
 
-    const serializedTx = tx.serialize();
+      const txnCount = await web3State.eth.getTransactionCount(from, "pending");
 
-    const finishedTransaction = await web3State.eth.sendSignedTransaction(
-      "0x" + serializedTx.toString("hex")
-    );
+      let rawTx = {
+        nonce: web3State.utils.numberToHex(txnCount),
+        from,
+        to,
+        value: web3State.utils.numberToHex(
+          web3State.utils.toWei(valueInEther, "ether")
+        ),
+        gasLimit: web3State.utils.numberToHex(gasLimit),
+        gasPrice: web3State.utils.numberToHex(gasPrice),
+      };
 
-    console.log(finishedTransaction);
-    console.log("END");
+      let tx = null;
+      if (this.props.network === "LocalHost8545") {
+        tx = new EthereumTx(rawTx);
+      } else {
+        tx = new EthereumTx(rawTx, {
+          chain: this.props.network.toLowerCase(),
+          hardfork: "petersburg",
+        });
+      }
+
+      tx.sign(privateKey);
+
+      const serializedTx = tx.serialize();
+
+      const finishedTransaction = await web3State.eth.sendSignedTransaction(
+        "0x" + serializedTx.toString("hex")
+      );
+
+      this.setState({ sending: false, sendError: null, finishedTransaction });
+    } catch (error) {
+      this.setState({ sending: false, sendError: error });
+    }
   };
 
   render() {
