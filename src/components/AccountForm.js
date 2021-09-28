@@ -27,7 +27,7 @@ const validateAccount = (account) => {
 };
 
 class AccountForm extends React.Component {
-  state = { selectedNetwork: null };
+  state = { selectedNetwork: "Mainnet" };
 
   renderError = (meta) => {
     if (meta.touched && meta.error) {

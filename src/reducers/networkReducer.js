@@ -1,6 +1,6 @@
 import { CHANGE_NETWORK } from "../actions/types";
 
-const INITIAL_STATE = null;
+const INITIAL_STATE = "Mainnet";
 const accountReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case CHANGE_NETWORK:

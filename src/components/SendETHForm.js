@@ -165,8 +165,6 @@ class SendETHForm extends React.Component {
         amount: web3State.utils.toWei(valueInEther, "ether"),
       });
       const estimateGasPrice = await web3State.eth.getGasPrice();
-      console.log("ESTIMATEGAS", estimateGas);
-      console.log("ESTIMATEGASPRICE", estimateGasPrice);
 
       let gasPrice = formValues.gasPrice
         ? web3State.utils.toWei(formValues.gasPrice, "gwei")
