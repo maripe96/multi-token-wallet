@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs, Tab } from "react-bootstrap";
-import SendTokensForm from "./SendTokensForm";
+import SendERC20TokensForm from "./SendERC20TokensForm";
 import SendETHForm from "./SendETHForm";
 
 class SendTabs extends React.Component {
@@ -14,8 +14,8 @@ class SendTabs extends React.Component {
         <Tab eventKey="eth" title="ETH">
           <SendETHForm />
         </Tab>
-        <Tab eventKey="token" title="Token">
-          <SendTokensForm />
+        <Tab eventKey="token" title="ERC20 Token">
+          <SendERC20TokensForm />
         </Tab>
       </Tabs>
     );

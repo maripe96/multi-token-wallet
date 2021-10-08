@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@truffle/hdwallet-provider": "^1.5.1",
     "bootstrap": "^5.1.0",
     "ethereumjs-tx": "^2.1.2",
     "final-form": "^4.20.2",
